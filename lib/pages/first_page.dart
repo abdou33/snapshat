@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:snapshat/themes/colors.dart';
 
-import 'cam_page.dart';
+import 'principal_page.dart';
 
 class CAM extends StatelessWidget {
   @override
@@ -104,6 +105,7 @@ class _HomeState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FloatingActionButton(
+              backgroundColor: pink2,
               heroTag: "btn1",
               onPressed: () {
                 pickimage();
@@ -111,6 +113,7 @@ class _HomeState extends State<Home> {
               child: Icon(Icons.image),
             ),
             FloatingActionButton(
+              backgroundColor: pink2,
               heroTag: "btn2",
               onPressed: () async {
                 try {
