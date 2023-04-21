@@ -82,8 +82,11 @@ class _CorpImageState extends State<CorpImage> {
       imageEditorOption: option,
     );
 
+    DateTime ketF = new DateTime.now();
+    String imgname = ketF.microsecondsSinceEpoch.toString();
+
     final tempDir = await getTemporaryDirectory();
-    File file = await File('${tempDir.path}/image.png').create();
+    File file = await File('${tempDir.path}/image_$imgname.png').create();
 
     file.writeAsBytesSync(result!.toList());
     print(file);

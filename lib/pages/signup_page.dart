@@ -114,7 +114,7 @@ class _registrationscreenState extends State<registrationscreen> {
         minWidth: MediaQuery.of(context).size.width,
         onPressed: () {
           //String newemail = "";
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => CAM()),
           );

@@ -10,13 +10,14 @@ import 'package:share/share.dart';
 import 'package:snapshat/themes/colors.dart';
 import 'dart:math' as math;
 
+import 'Textedit_page.dart';
 import 'corp_image.dart';
 
 class Camera_page extends StatefulWidget {
   File? image;
   Camera_page(this.image);
   @override
-  _Camera_pageState createState() => new _Camera_pageState(this.image);
+  _Camera_pageState createState() => _Camera_pageState(this.image);
 }
 
 class _Camera_pageState extends State<Camera_page> {
@@ -30,11 +31,22 @@ class _Camera_pageState extends State<Camera_page> {
   List<Filter> filters2 = presetFiltersList;
   List<Filter>? filters;
 
-// I/flutter (15941): false
-// I/flutter (15941): File: '/data/user/0/com.example.snapshat/app_flutter/filtered_AddictiveBlue_images - 2023-04-16T150448.688.jpg'
-
-// I/flutter (15941): true
-// I/flutter (15941): File: '/data/user/0/com.example.snapshat/app_flutter/filtered_AddictiveBlue_images - 2023-04-16T150448.688.jpg'
+  List<String> ppl_names = [
+    "Reda",
+    "Omar",
+    "manel",
+    "heba",
+    "meriem",
+    "abdellah"
+  ];
+  List<String> ppl_images = [
+    "assets/ppl/1.jpeg", //
+    "assets/ppl/2.jpeg",
+    "assets/ppl/3.jpeg",
+    "assets/ppl/4.jpeg",
+    "assets/ppl/5.jpeg",
+    "assets/ppl/6.jpeg"
+  ];
 
   @override
   void initState() {
@@ -60,7 +72,10 @@ class _Camera_pageState extends State<Camera_page> {
           image: image!,
           filters: filters!,
           filename: fileName,
-          loader: Center(child: CircularProgressIndicator()),
+          loader: Center(
+              child: CircularProgressIndicator(
+            color: pink2,
+          )),
           fit: BoxFit.contain,
         ),
       ),
@@ -87,8 +102,8 @@ class _Camera_pageState extends State<Camera_page> {
       DateTime ketF = new DateTime.now();
 
       // copy the file to a new path
-      final File newImage =
-          await img.copy('$myImagePath/image_${ketF.millisecond}.png');
+      final File newImage = await img
+          .copy('$myImagePath/image_${ketF.microsecondsSinceEpoch}.png');
     }
   }
 
@@ -98,6 +113,65 @@ class _Camera_pageState extends State<Camera_page> {
     Share.shareFiles(['${img.path}/'], text: "${myImagePath}");
   }
 
+  int number = 0;
+  send_snap(BuildContext context) {
+    return showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ListView.builder(
+          itemCount: ppl_names.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10), // radius of 10
+                    color: Color.fromARGB(
+                        255, 244, 244, 244), // green as background color
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.8),
+                        spreadRadius: 1,
+                        blurRadius: 1,
+                        offset: Offset(0, 0), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: AssetImage(ppl_images[index]),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          ppl_names[index],
+                        ),
+                        Expanded(
+                          child: SizedBox.shrink(),
+                        ),
+                        Radio(
+                            value: index,
+                            groupValue: number,
+                            onChanged: (int? value) {
+                              setState(() {
+                                number = value!;
+                                print(number); //selected value
+                              });
+                            })
+                      ],
+                    ),
+                  )),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,16 +179,36 @@ class _Camera_pageState extends State<Camera_page> {
         backgroundColor: pink2,
         actions: [
           IconButton(
+            icon: Icon(Icons.text_fields),
+            onPressed: () {
+              Navigator.of(context)
+                  .push(
+                MaterialPageRoute(
+                  builder: (context) => EditImageScreen(
+                    selectedImage: imageFile!.path,
+                  ),
+                ),
+              )
+                  .then((result) {
+                setState(() {
+                  print("result: $result");
+                  imageFile = result;
+                });
+              });
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.crop),
             onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CorpImage(imageFile)),
-                ).then((result) {
-                  setState(() {
-                    imageFile = result;
-                  });
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CorpImage(imageFile)),
+              ).then((result) {
+                setState(() {
+                  print("result: $result");
+                  imageFile = result;
                 });
+              });
             },
           ),
           IconButton(
@@ -127,6 +221,11 @@ class _Camera_pageState extends State<Camera_page> {
             icon: Icon(Icons.download),
             onPressed: () {
               saveimagetogallery(imageFile!);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Image saved to gallery.'),
+                ),
+              );
             },
           ),
         ],
@@ -159,8 +258,10 @@ class _Camera_pageState extends State<Camera_page> {
                     color: Colors.white,
                     iconSize: 40,
                     icon: Icon(Icons.send),
-                    onPressed: () {},
-                  )
+                    onPressed: () {
+                      send_snap(context);
+                    },
+                  ),
                 ],
               ),
             )
