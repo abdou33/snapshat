@@ -236,15 +236,18 @@ class _Camera_pageState extends State<Camera_page> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Container(
-              child: imageFile == null
-                  ? Center(
-                      child: new Text('No image selected.'),
-                    )
-                  : Image.file(imageFile!),
-            ),
-            SizedBox(
-              height: 100,
+            Expanded(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.7,
+                  maxWidth: MediaQuery.of(context).size.width,
+                ),
+                child: imageFile == null
+                      ? Center(
+                          child: new Text('No image selected.'),
+                        )
+                      : Image.file(imageFile!, fit:  BoxFit.contain),
+              ),
             ),
             Container(
               height: 75,

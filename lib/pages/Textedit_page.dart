@@ -19,7 +19,6 @@ class EditImageScreen extends StatefulWidget {
 
 class _EditImageScreenState extends EditImageViewModel {
   saveToGallery(BuildContext context) {
-    if (texts.isNotEmpty) {
       screenshotController.capture().then((Uint8List? image) async {
         DateTime ketF = new DateTime.now();
         String imgname = ketF.microsecondsSinceEpoch.toString();
@@ -32,7 +31,6 @@ class _EditImageScreenState extends EditImageViewModel {
         Navigator.pop(context, file);
         //saveImage(image!);
       }).catchError((err) => print(err));
-    }
   }
 
   @override
@@ -125,56 +123,54 @@ class _EditImageScreenState extends EditImageViewModel {
           Screenshot(
             controller: screenshotController,
             child: SafeArea(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: Stack(
-                  children: [
-                    _selectedImage,
-                    for (int i = 0; i < texts.length; i++)
-                      Positioned(
-                        left: texts[i].left,
-                        top: texts[i].top,
-                        child: GestureDetector(
-                          onLongPress: () {
-                            setState(() {
-                              currentIndex = i;
-                              removeText(context);
-                            });
-                          },
-                          onTap: () => setCurrentIndex(context, i),
-                          child: Draggable(
-                            feedback: ImageText(textInfo: texts[i]),
-                            child: ImageText(textInfo: texts[i]),
-                            onDragEnd: (drag) {
-                              final renderBox =
-                                  context.findRenderObject() as RenderBox;
-                              Offset off = renderBox.globalToLocal(drag.offset);
+                //height: MediaQuery.of(context).size.height * 0.8,
+                  child: Stack(
+                    children: [
+                      _selectedImage,
+                      for (int i = 0; i < texts.length; i++)
+                        Positioned(
+                          left: texts[i].left,
+                          top: texts[i].top,
+                          child: GestureDetector(
+                            onLongPress: () {
                               setState(() {
-                                texts[i].top = off.dy - 96;
-                                texts[i].left = off.dx;
+                                currentIndex = i;
+                                removeText(context);
                               });
                             },
+                            onTap: () => setCurrentIndex(context, i),
+                            child: Draggable(
+                              feedback: ImageText(textInfo: texts[i]),
+                              child: ImageText(textInfo: texts[i]),
+                              onDragEnd: (drag) {
+                                final renderBox =
+                                    context.findRenderObject() as RenderBox;
+                                Offset off = renderBox.globalToLocal(drag.offset);
+                                setState(() {
+                                  texts[i].top = off.dy - 96;
+                                  texts[i].left = off.dx;
+                                });
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    creatorText.text.isNotEmpty
-                        ? Positioned(
-                            left: 0,
-                            bottom: 0,
-                            child: Text(
-                              creatorText.text,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black.withOpacity(
-                                    0.3,
-                                  )),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  ],
-                ),
-              ),
+                      creatorText.text.isNotEmpty
+                          ? Positioned(
+                              left: 0,
+                              bottom: 0,
+                              child: Text(
+                                creatorText.text,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black.withOpacity(
+                                      0.3,
+                                    )),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ],
+                  ),
             ),
           ),
         ],
@@ -183,15 +179,20 @@ class _EditImageScreenState extends EditImageViewModel {
     );
   }
 
-  Widget get _selectedImage => Center(
-        child: Image.file(
-          File(
-            widget.selectedImage,
+  Widget get _selectedImage => ConstrainedBox(
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(context).size.height * 0.7, 
+      maxWidth: MediaQuery.of(context).size.width, 
+    ),
+    child: Image.file(
+            File(
+              widget.selectedImage,
+            ),
+            fit:  BoxFit.contain,
+            //width: MediaQuery.of(context).size.width,
+            //height: MediaQuery.of(context).size.height * 0.7 ,
           ),
-          fit: BoxFit.fill,
-          width: MediaQuery.of(context).size.width,
-        ),
-      );
+  );
 
   Widget get _addnewTextFab => Row(
         mainAxisAlignment: MainAxisAlignment.end,
