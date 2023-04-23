@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:helpers/helpers.dart' show OpacityTransition;
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 import 'package:video_editor/video_editor.dart';
 
 import '../models/export_result.dart';
@@ -72,11 +74,6 @@ class _VideoEditorState extends State<VideoEditor> {
       onCompleted: (file) {
         _isExporting.value = false;
         if (!mounted) return;
-
-        showDialog(
-          context: context,
-          builder: (_) => VideoResultPopup(video: file),
-        );
       },
     );
   }
@@ -246,60 +243,123 @@ class _VideoEditorState extends State<VideoEditor> {
     "assets/ppl/6.jpeg"
   ];
 
+  shareimage() async {
+    print(_controller.file.path);
+    Share.shareFiles(['${_controller.file.path}/'], text: "${_controller.file}", subject: "${_controller.file}");
+  }
+
   int number = 0;
   send_snap(BuildContext context) {
     return showModalBottomSheet(
       context: context,
       builder: (context) {
-        return ListView.builder(
-          itemCount: ppl_names.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Padding(
+        return Column(
+          children: [
+            //share
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10), // radius of 10
-                    color: Color.fromARGB(
-                        255, 244, 244, 244), // green as background color
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.8),
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset: Offset(0, 0), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage: AssetImage(ppl_images[index]),
+              child: GestureDetector(
+                onTap: () {
+                  //_exportVideo();
+                  shareimage();
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10), // radius of 10
+                      color: Color.fromARGB(
+                          255, 244, 244, 244), // green as background color
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.8),
+                          spreadRadius: 1,
+                          blurRadius: 1,
+                          offset: Offset(0, 0), // changes position of shadow
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          ppl_names[index],
-                        ),
-                        Expanded(
-                          child: SizedBox.shrink(),
-                        ),
-                        Radio(
-                            value: index,
-                            groupValue: number,
-                            onChanged: (int? value) {
-                              setState(() {
-                                number = value!;
-                                print(number); //selected value
-                              });
-                            })
                       ],
                     ),
-                  )),
-            );
-          },
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            color: Colors.white,
+                            icon: Icon(
+                              Icons.share,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {},
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Share outside the App",
+                          ),
+                        ],
+                      ),
+                    )),
+              ),
+            ),
+            //send as message
+            Expanded(
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: ppl_names.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(10), // radius of 10
+                          color: Color.fromARGB(
+                              255, 244, 244, 244), // green as background color
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.8),
+                              spreadRadius: 1,
+                              blurRadius: 1,
+                              offset:
+                                  Offset(0, 0), // changes position of shadow
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage: AssetImage(ppl_images[index]),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                ppl_names[index],
+                              ),
+                              Expanded(
+                                child: SizedBox.shrink(),
+                              ),
+                              Radio(
+                                  value: index,
+                                  groupValue: number,
+                                  onChanged: (int? value) {
+                                    setState(() {
+                                      number = value!;
+                                      print(number); //selected value
+                                    });
+                                  })
+                            ],
+                          ),
+                        )),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );

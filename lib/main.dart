@@ -1,3 +1,4 @@
+import 'package:face_camera/face_camera.dart';
 import 'package:flutter/material.dart';
 import 'package:snapshat/themes/colors.dart';
 
@@ -5,7 +6,10 @@ import 'pages/principal_page.dart';
 import 'pages/first_page.dart';
 import 'pages/login_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); //Add this
+
+  await FaceCamera.initialize(); //Add this
   runApp(const MyApp());
 }
 

@@ -47,6 +47,7 @@ dependencies:
   video_player: ^2.6.1
   fraction: ^4.1.4
   helpers: ^1.1.4
+  face_camera: ^0.0.6
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:face_camera/face_camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:snapshat/themes/colors.dart';
@@ -45,8 +46,6 @@ class _HomeState extends State<Home> {
 
       controller!.initialize().then((_) async {
         maxzoom = await controller!.getMaxZoomLevel();
-        print(zoom);
-        print(maxzoom);
         setState(() {});
         if (!mounted) {
           return;
@@ -96,6 +95,7 @@ class _HomeState extends State<Home> {
       controller!.initialize().then((_) async {
         maxzoom = await controller!.getMaxZoomLevel();
         setState(() {});
+        verify_flash();
         if (!mounted) {
           return;
         }
@@ -106,6 +106,7 @@ class _HomeState extends State<Home> {
 
       controller!.initialize().then((_) async {
         maxzoom = await controller!.getMaxZoomLevel();
+        verify_flash();
         setState(() {});
         if (!mounted) {
           return;
@@ -124,6 +125,16 @@ class _HomeState extends State<Home> {
   bool is_flashon = true;
   bool is_paused = false;
   double zoom = 1;
+
+  verify_flash() {
+    if (is_flashon) {
+      controller!.setFlashMode(FlashMode.off);
+      controller!.setFlashMode(FlashMode.always);
+    } else {
+      controller!.setFlashMode(FlashMode.off);
+    }
+    print(is_flashon);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,10 +156,21 @@ class _HomeState extends State<Home> {
                   : !controller!.value.isInitialized && maxzoom != 0
                       ? Center(
                           child: CircularProgressIndicator(
-                      color: pink2,
-                    ),
+                            color: pink2,
+                          ),
                         )
-                      : CameraPreview(controller!)),
+                      : CameraPreview(controller!)
+              // SmartFaceCamera(
+              //   captureControlIcon: CircularProgressIndicator(),
+              //   defaultFlashMode: CameraFlashMode.off,
+              //   showControls: false,
+              //   showFlashControl: false,
+              //     autoCapture: false,
+              //     defaultCameraLens: CameraLens.front,
+              //     message: 'Center',
+              //     onCapture: (File? image) {},
+              //   )
+              ),
           Container(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 15),
@@ -286,7 +308,9 @@ class _HomeState extends State<Home> {
                       child: Icon(Icons.folder),
                     )
                   : SizedBox.shrink(),
-                  SizedBox(width: 10,),
+              SizedBox(
+                width: 10,
+              ),
               !is_recording
                   ? FloatingActionButton(
                       backgroundColor: pink2,
@@ -312,7 +336,9 @@ class _HomeState extends State<Home> {
                       child: Icon(Icons.camera),
                     )
                   : SizedBox.shrink(),
-                  SizedBox(width: 10,),
+              SizedBox(
+                width: 10,
+              ),
               !is_recording
                   ? FloatingActionButton(
                       backgroundColor: pink2,
@@ -328,6 +354,9 @@ class _HomeState extends State<Home> {
                               });
                               await controller!.prepareForVideoRecording();
                               await controller!.startVideoRecording();
+                              if (is_flashon) {
+                                controller!.setFlashMode(FlashMode.torch);
+                              }
                               setState(() {
                                 //update UI
                               });
@@ -353,9 +382,10 @@ class _HomeState extends State<Home> {
                                   setState(() {
                                     is_recording = false;
                                   });
+                                  await controller!.setFlashMode(FlashMode.off);
+                                  verify_flash();
                                   video =
                                       await controller!.stopVideoRecording();
-                                  print(video!.path);
                                   setState(() {
                                     //update UI
                                   });
@@ -373,7 +403,9 @@ class _HomeState extends State<Home> {
                           },
                           child: Icon(Icons.stop),
                         ),
-                        SizedBox(width: 10,),
+                        SizedBox(
+                          width: 10,
+                        ),
                         !is_paused
                             ? FloatingActionButton(
                                 backgroundColor: pink2,
@@ -426,7 +458,9 @@ class _HomeState extends State<Home> {
                               ),
                       ],
                     ),
-                    SizedBox(width: 10,),
+              SizedBox(
+                width: 10,
+              ),
               !is_recording
                   ? FloatingActionButton(
                       backgroundColor: pink2,
@@ -442,7 +476,9 @@ class _HomeState extends State<Home> {
                       child: Icon(Icons.flip_camera_android),
                     )
                   : SizedBox.shrink(),
-                  SizedBox(width: 10,),
+              SizedBox(
+                width: 10,
+              ),
             ],
           ),
         ),
