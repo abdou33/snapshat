@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:helpers/helpers.dart' show OpacityTransition;
-import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
 import 'package:video_editor/video_editor.dart';
 
@@ -9,6 +10,7 @@ import '../models/export_result.dart';
 import '../themes/colors.dart';
 import 'crop.dart';
 import 'first_page.dart';
+import 'video_acceleration.dart';
 
 class VideoEditor extends StatefulWidget {
   const VideoEditor({super.key, required this.file});
@@ -60,26 +62,35 @@ class _VideoEditorState extends State<VideoEditor> {
       );
 
   void _exportVideo() async {
+    var path = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_PICTURES);
+
     _exportingProgress.value = 0;
     _isExporting.value = true;
-    final myImagePath = '/storage/emulated/0/BIsnap';
-    // NOTE: To use `-crf 1` and [VideoExportPreset] you need `ffmpeg_kit_flutter_min_gpl` package (with `ffmpeg_kit` only it won't work)
-    await _controller.exportVideo(
-      outDir: myImagePath,
-      // format: VideoExportFormat.gif,
-      // preset: VideoExportPreset.medium,
-      // customInstruction: "-crf 17",
-      onProgress: (stats, value) => _exportingProgress.value = value,
-      onError: (e, s) => _showErrorSnackBar("Error on export video :("),
-      onCompleted: (file) {
-        _isExporting.value = false;
-        if (!mounted) return;
-      },
-    );
+    final myImagePath = '$path/BIsnap';
+
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    } else if (status.isGranted) {
+      await _controller.exportVideo(
+        outDir: myImagePath,
+        onProgress: (stats, value) => _exportingProgress.value = value,
+        onError: (e, s) => _showErrorSnackBar("Error on export video :("),
+        onCompleted: (file) {
+          _isExporting.value = false;
+          if (!mounted) return;
+        },
+      );
+    }
   }
 
   void _exportCover() async {
+    var path = await ExternalPath.getExternalStoragePublicDirectory(
+        ExternalPath.DIRECTORY_PICTURES);
+    final myImagePath = '$path/BIsnap';
     await _controller.extractCover(
+      outDir: myImagePath,
       onError: (e, s) => _showErrorSnackBar("Error on cover exportation :("),
       onCompleted: (cover) {
         if (!mounted) return;
@@ -88,6 +99,17 @@ class _VideoEditorState extends State<VideoEditor> {
           context: context,
           builder: (_) => CoverResultPopup(cover: cover),
         );
+      },
+    );
+  }
+
+  gettmp_ved() async {
+    await _controller.exportVideo(
+      onProgress: (stats, value) => _exportingProgress.value = value,
+      onError: (e, s) => _showErrorSnackBar("Error on export video :("),
+      onCompleted: (file) {
+        _isExporting.value = false;
+        if (!mounted) return;
       },
     );
   }
@@ -151,7 +173,7 @@ class _VideoEditorState extends State<VideoEditor> {
                                 ),
                                 Container(
                                   height: 200,
-                                  margin: const EdgeInsets.only(top: 10),
+                                  margin: const EdgeInsets.only(top: 0),
                                   child: Column(
                                     children: [
                                       TabBar(
@@ -245,7 +267,8 @@ class _VideoEditorState extends State<VideoEditor> {
 
   shareimage() async {
     print(_controller.file.path);
-    Share.shareFiles(['${_controller.file.path}/'], text: "${_controller.file}", subject: "${_controller.file}");
+    Share.shareFiles(['${_controller.file.path}/'],
+        text: "${_controller.file}", subject: "${_controller.file}");
   }
 
   int number = 0;
@@ -410,6 +433,38 @@ class _VideoEditorState extends State<VideoEditor> {
                     ),
                   ),
                   icon: const Icon(Icons.crop),
+                  tooltip: 'Open crop screen',
+                ),
+              ),
+              Expanded(
+                child: IconButton(
+                  onPressed: () async {
+                    await _controller.exportVideo(
+                      onProgress: (stats, value) =>
+                          _exportingProgress.value = value,
+                      onError: (e, s) =>
+                          _showErrorSnackBar("Error on export video :("),
+                      onCompleted: (file) {
+                        print("file111==: ${file}");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (context) => VedAccelerator(
+                              ved: file,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.speed),
+                  tooltip: 'Open crop screen',
+                ),
+              ),
+              Expanded(
+                child: IconButton(
+                  onPressed: () async {},
+                  icon: const Icon(Icons.edit),
                   tooltip: 'Open crop screen',
                 ),
               ),

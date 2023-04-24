@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:camera/camera.dart';
-import 'package:face_camera/face_camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:snapshat/themes/colors.dart';
@@ -103,7 +101,6 @@ class _HomeState extends State<Home> {
       });
     } else if (front_cam) {
       controller = CameraController(cameras![1], ResolutionPreset.medium);
-
       controller!.initialize().then((_) async {
         maxzoom = await controller!.getMaxZoomLevel();
         verify_flash();
@@ -160,17 +157,7 @@ class _HomeState extends State<Home> {
                           ),
                         )
                       : CameraPreview(controller!)
-              // SmartFaceCamera(
-              //   captureControlIcon: CircularProgressIndicator(),
-              //   defaultFlashMode: CameraFlashMode.off,
-              //   showControls: false,
-              //   showFlashControl: false,
-              //     autoCapture: false,
-              //     defaultCameraLens: CameraLens.front,
-              //     message: 'Center',
-              //     onCapture: (File? image) {},
-              //   )
-              ),
+                      ),
           Container(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 15),

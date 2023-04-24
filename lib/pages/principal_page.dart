@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
@@ -89,15 +90,14 @@ class _Camera_pageState extends State<Camera_page> {
   }
 
   saveimagetogallery(File img) async {
-    print(img);
-    // final directory = await getExternalStorageDirectory();
-    // print("directory ====:: \t" + directory.toString());
+    var path = await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_PICTURES);
+
     var status = await Permission.storage.status;
     if (!status.isGranted) {
       await Permission.storage.request();
     } else if (status.isGranted) {
-      final myImagePath = '/storage/emulated/0/BIsnap';
-      final myImgDir = await new Directory(myImagePath).create();
+      final myImagePath = '$path/BIsnap';
+      await new Directory(myImagePath).create();
 
       DateTime ketF = new DateTime.now();
 
@@ -243,10 +243,10 @@ class _Camera_pageState extends State<Camera_page> {
                   maxWidth: MediaQuery.of(context).size.width,
                 ),
                 child: imageFile == null
-                      ? Center(
-                          child: new Text('No image selected.'),
-                        )
-                      : Image.file(imageFile!, fit:  BoxFit.contain),
+                    ? Center(
+                        child: new Text('No image selected.'),
+                      )
+                    : Image.file(imageFile!, fit: BoxFit.contain),
               ),
             ),
             Container(
