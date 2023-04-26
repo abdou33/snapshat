@@ -32,10 +32,14 @@ dependencies:
   flutter:
     sdk: flutter
 
-  photofilters: ^3.0.1
+  photofilters:
+    git:
+      url: https://github.com/abdou33/photofilters.git
+
+
   image: ^3.0.2
   image_picker: ^0.8.7+3
-  camera: ^0.9.4+21
+  camera: ^0.10.4
   share: ^2.0.4
   path_provider: ^2.0.9
   permission_handler: ^10.2.0
@@ -50,13 +54,7 @@ dependencies:
   fraction: ^4.1.4
   helpers: ^1.1.4
 
-  tflite_flutter: ^0.9.0
-  tflite_flutter_helper:
-    git:
-      url: https://github.com/elephantum/tflite_flutter_helper.git
-      ref: a7d7a59a33f7cffa0a2a12ab05625807622cc97a
-
-  google_ml_kit: ^0.7.3
+  google_mlkit_face_detection: ^0.6.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -65,7 +63,6 @@ dependencies:
 
 
 dev_dependencies:
-  flutter_launcher_icons: "^0.11.0"
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
@@ -90,7 +87,6 @@ flutter:
   assets:
     - assets/
     - assets/ppl/
-    - assets/mobilefacenet.tflite
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

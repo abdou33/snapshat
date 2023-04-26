@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:snapshat/themes/colors.dart';
 
@@ -5,8 +6,10 @@ import 'pages/principal_page.dart';
 import 'pages/first_page.dart';
 import 'pages/login_page.dart';
 
+List<CameraDescription> cameras = [];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); //Add this
+  cameras = await availableCameras();
   runApp(const MyApp());
 }
 
