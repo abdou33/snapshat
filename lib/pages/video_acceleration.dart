@@ -91,7 +91,9 @@ class _VedAcceleratorState extends State<VedAccelerator> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  speed = speed + 0.25;
+                  if (speed < 5) {
+                    speed = speed + 0.25;
+                  }
                   setState(() {
                     _controller!.setPlaybackSpeed(speed);
                   });

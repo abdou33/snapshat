@@ -1,11 +1,21 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:snapshat/themes/colors.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 
+import '../models/facemodels/detector.dart';
+import '../models/facemodels/model.dart';
+import '../models/facemodels/utils.dart';
 import 'principal_page.dart';
 import 'video_review.dart';
+import 'package:image/image.dart' as imglib;
+import 'package:quiver/collection.dart';
 
 class CAM extends StatelessWidget {
   @override
@@ -22,7 +32,7 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with WidgetsBindingObserver {
   List<CameraDescription>? cameras; //list out the camera available
   CameraController? controller; //controller for camera
   XFile? image; //for caputred image
@@ -32,19 +42,40 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    loadCamera();
+    // loadCamera();
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
+    _start();
   }
 
-  loadCamera() async {
+  void _start() async {
+    interpreter = await loadModel();
+    initialCamera();
+  }
+
+  @override
+  void dispose() async {
+    WidgetsBinding.instance.removeObserver(this);
+    if (controller != null) {
+      await controller!.stopImageStream();
+      await Future.delayed(const Duration(milliseconds: 200));
+      //await controller!.dispose();
+      controller = null;
+    }
+    super.dispose();
+  }
+
+  void initialCamera() async {
     cameras = await availableCameras();
-    print("cameras == $cameras");
     if (cameras != null) {
       controller = CameraController(cameras![0], ResolutionPreset.medium);
 
       controller!.initialize().then((_) async {
         maxzoom = await controller!.getMaxZoomLevel();
-        setState(() {});
         if (!mounted) {
           return;
         }
@@ -53,7 +84,91 @@ class _HomeState extends State<Home> {
     } else {
       print("NO any camera found");
     }
+    await Future.delayed(const Duration(milliseconds: 500));
+    loading = false;
+    tempDir = await getApplicationDocumentsDirectory();
+    String _embPath = tempDir!.path + '/emb.json';
+    jsonFile = File(_embPath);
+    if (jsonFile.existsSync()) {
+      data = json.decode(jsonFile.readAsStringSync());
+    }
+
+    await Future.delayed(const Duration(milliseconds: 500));
+
+
+    if(controller!.value.isInitialized){
+      controller!.startImageStream((CameraImage image) async {
+      if (controller != null) {
+        if (_isDetecting) return;
+        _isDetecting = true;
+        dynamic finalResult =  Multimap<String, Face>();
+
+        detect(image, getDetectionMethod()).then((dynamic result) async {
+          if (result.length == 0 || result == null) {
+            _faceFound = false;
+            _predRes = 'Tidak dikenali';
+          } else {
+            _faceFound = true;
+          }
+
+          String res;
+          Face _face;
+
+          imglib.Image convertedImage =
+              convertCameraImage(image, CameraLensDirection.front);
+
+          for (_face in result) {
+            double x, y, w, h;
+            x = (_face.boundingBox.left - 10);
+            y = (_face.boundingBox.top - 10);
+            w = (_face.boundingBox.width + 10);
+            h = (_face.boundingBox.height + 10);
+            imglib.Image croppedImage = imglib.copyCrop(
+                convertedImage, x.round(), y.round(), w.round(), h.round());
+            croppedImage = imglib.copyResizeCropSquare(croppedImage, 112);
+            res = recog(croppedImage);
+            finalResult.add(res, _face);
+          }
+
+          _scanResults = finalResult;
+          _isDetecting = false;
+          setState(() {});
+        }).catchError(
+          (_) async {
+            print({'error': _.toString()});
+            _isDetecting = false;
+            if (controller != null) {
+              await controller!.stopImageStream();
+              await Future.delayed(const Duration(milliseconds: 400));
+              await controller!.dispose();
+              await Future.delayed(const Duration(milliseconds: 400));
+              controller = null;
+            }
+            Navigator.pop(context);
+          },
+        );
+      }
+    });
+    }
+
+    
   }
+
+  late File jsonFile;
+  var interpreter;
+  dynamic data = {};
+  bool _isDetecting = false;
+  double threshold = 1.0;
+  dynamic _scanResults;
+  String _predRes = '';
+  bool isStream = true;
+  CameraImage? controllerimage;
+  Directory? tempDir;
+  bool _faceFound = false;
+  bool _verify = false;
+  List? e1;
+  bool loading = true;
+  final TextEditingController _name = TextEditingController(text: '');
 
   take_pic(img) {
     // print(File(img!.path).toString());
@@ -67,7 +182,6 @@ class _HomeState extends State<Home> {
     XFile? img;
     if (is_image) {
       img = await ImagePicker().pickImage(source: ImageSource.gallery);
-      print("before============" + File(img!.path).toString());
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Camera_page(File(img!.path))),
@@ -133,6 +247,34 @@ class _HomeState extends State<Home> {
     print(is_flashon);
   }
 
+  String recog(imglib.Image img) {
+    List input = imageToByteListFloat32(img, 112, 128, 128);
+    input = input.reshape([1, 112, 112, 3]);
+    List output = List.filled(1 * 192, null, growable: false).reshape([1, 192]);
+    interpreter.run(input, output);
+    output = output.reshape([192]);
+    e1 = List.from(output);
+    return compare(e1!).toUpperCase();
+  }
+
+  String compare(List currEmb) {
+    //mengembalikan nama pemilik akun
+    double minDist = 999;
+    double currDist = 0.0;
+    _predRes = "Tidak dikenali";
+    for (String label in data.keys) {
+      currDist = euclideanDistance(data[label], currEmb);
+      if (currDist <= threshold && currDist < minDist) {
+        minDist = currDist;
+        _predRes = label;
+        if (_verify == false) {
+          _verify = true;
+        }
+      }
+    }
+    return _predRes;
+  }
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -148,16 +290,23 @@ class _HomeState extends State<Home> {
         children: [
           Container(
               height: height,
-              child: controller == null
-                  ? Center(child: Text("Loading Camera..."))
-                  : !controller!.value.isInitialized && maxzoom != 0
+              child: (controller == null || !controller!.value.isInitialized) || loading && maxzoom != 0
                       ? Center(
                           child: CircularProgressIndicator(
                             color: pink2,
                           ),
                         )
-                      : CameraPreview(controller!)
-                      ),
+                      : Container(
+                        constraints: const BoxConstraints.expand(),
+                        
+                        child: Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    CameraPreview(controller!),
+                    _buildResults(),
+                  ],
+                ),)
+                ),
           Container(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 15),
@@ -460,7 +609,7 @@ class _HomeState extends State<Home> {
                         }
                         switch_cam();
                       },
-                      child: Icon(Icons.flip_camera_android),
+                      child: Icon(Icons.flip_camera_android_rounded),
                     )
                   : SizedBox.shrink(),
               SizedBox(
@@ -470,6 +619,30 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildResults() {
+    Center noResultsText = const Center(
+        child: Text('preparing ...',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+                color: Colors.white)));
+    if (_scanResults == null ||
+        controller == null ||
+        !controller!.value.isInitialized) {
+      return noResultsText;
+    }
+    CustomPainter painter;
+
+    final Size imageSize = Size(
+      controller!.value.previewSize!.height,
+      controller!.value.previewSize!.width,
+    );
+    painter = FaceDetectorPainter(imageSize, _scanResults);
+    return CustomPaint(
+      painter: painter,
     );
   }
 }
