@@ -3,10 +3,14 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
 
 import '../../main.dart';
+import '../../pages/first_page.dart';
 import '../../pages/principal_page.dart';
 import '../../pages/video_review.dart';
 import '../../themes/colors.dart';
@@ -39,12 +43,12 @@ class _CameraViewState extends State<CameraView> {
   int _cameraIndex = -1;
   double zoomLevel = 0.0, minZoomLevel = 0.0, maxZoomLevel = 0.0;
   final bool _allowPicker = true;
-  bool _changingCameraLens = false;
 
   XFile? image; //for caputred image
   XFile? video; //for recording video
   bool is_recording = false;
-  bool front_cam = false;
+
+  ScreenshotController screenshotController = ScreenshotController();
 
   @override
   void initState() {
@@ -78,7 +82,7 @@ class _CameraViewState extends State<CameraView> {
 
   @override
   void dispose() {
-    _stopLiveFeed(); // 
+    _stopLiveFeed(); //
     super.dispose();
   }
 
@@ -142,35 +146,42 @@ class _CameraViewState extends State<CameraView> {
                     )
                   : SizedBox.shrink(),
               SizedBox(
-                width: 10,
+                width: 5,
               ),
               !is_recording
                   ? FloatingActionButton(
                       backgroundColor: pink2,
                       heroTag: "btn2",
                       onPressed: () async {
-                        try {
-                          if (_controller != null) {
-                            //check if contrller is not null
-                            if (_controller!.value.isInitialized) {
-                              //check if _controller is initialized
-                              await _controller?.stopImageStream();
-                              image = await _controller!.takePicture(); //capture image
-                              setState(() {
-                                //update UI
-                              });
+                        if (!isfaceon) {
+                          try {
+                            if (_controller != null) {
+                              //check if contrller is not null
+                              if (_controller!.value.isInitialized) {
+                                //check if _controller is initialized
+                                //_stopLiveFeed();
+                                await _controller!.stopImageStream();
+                                image = await _controller!
+                                    .takePicture(); //capture image
+                                _startLiveFeed();
+                                setState(() {
+                                  //update UI
+                                });
+                              }
                             }
+                          } catch (e) {
+                            print(e); //show error
                           }
-                        } catch (e) {
-                          print(e); //show error
+                          take_pic(image);
+                        } else {
+                          take_ss();
                         }
-                        take_pic(image);
                       },
                       child: Icon(Icons.camera),
                     )
                   : SizedBox.shrink(),
               SizedBox(
-                width: 10,
+                width: 5,
               ),
               !is_recording
                   ? FloatingActionButton(
@@ -185,6 +196,7 @@ class _CameraViewState extends State<CameraView> {
                               setState(() {
                                 is_recording = true;
                               });
+                              await _controller!.stopImageStream();
                               await _controller!.prepareForVideoRecording();
                               await _controller!.startVideoRecording();
                               if (is_flashon) {
@@ -215,10 +227,13 @@ class _CameraViewState extends State<CameraView> {
                                   setState(() {
                                     is_recording = false;
                                   });
-                                  await _controller!.setFlashMode(FlashMode.off);
+                                  await _controller!
+                                      .setFlashMode(FlashMode.off);
                                   verify_flash();
-                                  await _controller?.stopImageStream();
-                                  video = await _controller!.stopVideoRecording();
+                                  //await _controller?.stopImageStream();
+                                  video =
+                                      await _controller!.stopVideoRecording();
+                                  _startLiveFeed();
                                   setState(() {
                                     //update UI
                                   });
@@ -237,7 +252,7 @@ class _CameraViewState extends State<CameraView> {
                           child: Icon(Icons.stop),
                         ),
                         SizedBox(
-                          width: 10,
+                          width: 5,
                         ),
                         !is_paused
                             ? FloatingActionButton(
@@ -252,7 +267,8 @@ class _CameraViewState extends State<CameraView> {
                                         setState(() {
                                           is_paused = true;
                                         });
-                                        await _controller!.pauseVideoRecording();
+                                        await _controller!
+                                            .pauseVideoRecording();
                                         setState(() {
                                           //update UI
                                         });
@@ -292,31 +308,91 @@ class _CameraViewState extends State<CameraView> {
                       ],
                     ),
               SizedBox(
-                width: 10,
+                width: 5,
               ),
               !is_recording
                   ? FloatingActionButton(
                       backgroundColor: pink2,
                       heroTag: "btn4",
                       onPressed: () async {
-                        if (front_cam) {
-                          front_cam = false;
-                        } else {
-                          front_cam = true;
-                        }
-                        switch_cam();
+                        _switchLiveCamera();
                       },
                       child: Icon(Icons.flip_camera_android),
                     )
                   : SizedBox.shrink(),
               SizedBox(
-                width: 10,
+                width: 5,
               ),
+              !is_recording
+                  ? Container(
+                      padding: EdgeInsets.only(right: 10.0, bottom: 10.0),
+                      child: Container(
+                          height: 70.0, width: 70.0, child: _offsetPopup()))
+                  : SizedBox.shrink(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  List face_filters = [
+    "assets/face_filters/nothing.png",
+    "assets/face_filters/1.png",
+    "assets/face_filters/2.png",
+    "assets/face_filters/3.png",
+    "assets/face_filters/4.png",
+    "assets/face_filters/5.png",
+  ];
+
+  Widget _offsetPopup() => PopupMenuButton<int>(
+      itemBuilder: (context) => [
+            PopupMenuItem(
+                value: 1,
+                child: SizedBox(
+                  height: 200,
+                  width: 200,
+                  child: GridView.builder(
+                      itemCount: face_filters.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                      ),
+                      itemBuilder: (_, int index) {
+                        return GestureDetector(
+                          onTap: () {
+                            load_image(face_filters[index]);
+                          },
+                          child: Card(
+                            color: iMage_name == face_filters[index]
+                                ? pink2
+                                : Colors.transparent,
+                            child: Image.asset(face_filters[index]),
+                          ),
+                        );
+                      }),
+                )),
+          ],
+      icon: Icon(
+        Icons.face_retouching_natural_sharp,
+        color: pink2,
+      ));
+
+  load_image(String img) async {
+    setState(() {
+      iMage_name = img;
+    });
+    if (img == "assets/face_filters/nothing.png") {
+      isfaceon = false;
+      var bytes = await rootBundle.load("assets/face_filters/transparent.png");
+      iMage = await decodeImageFromList(bytes.buffer.asUint8List());
+    } else {
+      isfaceon = true;
+      var bytes = await rootBundle.load(img);
+      iMage = await decodeImageFromList(bytes.buffer.asUint8List());
+    }
+    setState(() {});
+    print(iMage_name);
   }
 
   Widget _liveFeedBody() {
@@ -335,21 +411,32 @@ class _CameraViewState extends State<CameraView> {
       child: Stack(
         fit: StackFit.expand,
         children: <Widget>[
-          Transform.scale(
-            scale: scale,
-            child: Center(
-              child: _controller == null ?
-              Center(child: CircularProgressIndicator(color: pink2,),) :
-                  !_controller!.value.isInitialized && maxZoomLevel != 0 ?
-                  Center(child: CircularProgressIndicator(color: Colors.blue,),)
-                  : CameraPreview(_controller!),
-            ),
-          ),
-          if (widget.customPaint != null) widget.customPaint!,
+          //the camera preview
+                Transform.scale(
+                  scale: scale,
+                  child: Center(
+                    child: _controller == null
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: pink2,
+                            ),
+                          )
+                        : !_controller!.value.isInitialized && maxZoomLevel != 0
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.blue,
+                                ),
+                              )
+                            : CameraPreview(_controller!),
+                  ),
+                ),
+                //the custom paint
+                if (widget.customPaint != null) widget.customPaint!,
+          // the UI
           Container(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 15),
-              child: maxZoomLevel!= 0
+              child: maxZoomLevel != 0
                   ? Column(
                       children: [
                         Row(
@@ -363,7 +450,8 @@ class _CameraViewState extends State<CameraView> {
                                         setState(() {
                                           is_flashon = false;
                                         });
-                                        _controller!.setFlashMode(FlashMode.off);
+                                        _controller!
+                                            .setFlashMode(FlashMode.off);
                                       },
                                       icon: Icon(
                                         Icons.flash_on,
@@ -431,11 +519,30 @@ class _CameraViewState extends State<CameraView> {
   }
 
   take_pic(img) {
-    // print(File(img!.path).toString());
+    print(File(img!.path).toString());
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Camera_page(File(img!.path))),
     );
+  }
+
+  take_ss() {
+    screenshotController.capture().then((Uint8List? image) async {
+      DateTime ketF = new DateTime.now();
+      String imgname = ketF.microsecondsSinceEpoch.toString();
+      final tempDir = await getTemporaryDirectory();
+      File file = await File('${tempDir.path}/image_$imgname.png').create();
+
+      file.writeAsBytesSync(image!.toList());
+      print(file);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Camera_page(file)),
+      );
+    }).catchError((onError) {
+      print(onError);
+    });
   }
 
   pickimage(bool is_image) async {
@@ -459,7 +566,7 @@ class _CameraViewState extends State<CameraView> {
       );
     }
   }
-  
+
   change_zoom() {
     _controller!.setZoomLevel(zoom);
   }
@@ -478,35 +585,6 @@ class _CameraViewState extends State<CameraView> {
     print(is_flashon);
   }
 
-  switch_cam() async {
-    maxZoomLevel = 0;
-    if (!front_cam) {
-      _controller = CameraController(cameras[0], ResolutionPreset.medium);
-
-      _controller!.initialize().then((_) async {
-        maxZoomLevel = await _controller!.getMaxZoomLevel();
-        setState(() {});
-        verify_flash();
-        if (!mounted) {
-          return;
-        }
-        setState(() {});
-      });
-    } else if (front_cam) {
-      //cam_direction = CameraLensDirection.back;
-      _controller = CameraController(cameras[1], ResolutionPreset.medium);
-      _controller!.initialize().then((_) async {
-        maxZoomLevel = await _controller!.getMaxZoomLevel();
-        verify_flash();
-        setState(() {});
-        if (!mounted) {
-          return;
-        }
-        setState(() {});
-      });
-    }
-    setState(() {});
-  }
 
   Future _startLiveFeed() async {
     final camera = cameras[_cameraIndex];
@@ -515,7 +593,7 @@ class _CameraViewState extends State<CameraView> {
       ResolutionPreset.high,
       enableAudio: false,
     );
-    _controller?.initialize().then((_) async{
+    _controller?.initialize().then((_) async {
       if (!mounted) {
         return;
       }
@@ -538,12 +616,13 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Future _switchLiveCamera() async {
-    setState(() => _changingCameraLens = true);
+    await _controller?.stopImageStream();
+    await _controller?.dispose();
+
     _cameraIndex = (_cameraIndex + 1) % cameras.length;
 
-    await _stopLiveFeed();
     await _startLiveFeed();
-    setState(() => _changingCameraLens = false);
+
   }
 
   Future _processCameraImage(CameraImage image) async {

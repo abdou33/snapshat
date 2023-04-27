@@ -1,14 +1,11 @@
-import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:snapshat/themes/colors.dart';
+import 'dart:ui' as ui;
 
 import '../models/facemodels/camera_view.dart';
 import '../models/facemodels/face_detector_painter.dart';
-import 'principal_page.dart';
-import 'video_review.dart';
 
 class CAM extends StatelessWidget {
   @override
@@ -25,10 +22,13 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
+ui.Image? iMage;
+String? iMage_name;
+bool isfaceon = false;
+
 class _HomeState extends State<Home> {
   List<CameraDescription>? cameras; //list out the camera available
   CameraController? controller; //controller for camera
-  
 
   final FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
@@ -45,7 +45,14 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     //loadCamera();
+    load_image();
     super.initState();
+  }
+
+  load_image() async {
+    var bytes = await rootBundle.load("assets/face_filters/transparent.png");
+    iMage = await decodeImageFromList(bytes.buffer.asUint8List());
+    iMage_name = "assets/face_filters/transparent.png";
   }
 
   @override
@@ -54,36 +61,6 @@ class _HomeState extends State<Home> {
     _faceDetector.close();
     super.dispose();
   }
-
-  // loadCamera() async {
-  //   cameras = await availableCameras();
-  //   print("cameras == $cameras");
-  //   if (cameras != null) {
-  //     controller = CameraController(cameras![0], ResolutionPreset.medium);
-
-  //     controller!.initialize().then((_) async {
-  //       maxzoom = await controller!.getMaxZoomLevel();
-  //       setState(() {});
-  //       if (!mounted) {
-  //         return;
-  //       }
-  //       setState(() {
-  //         Cam_ready = true;
-  //       });
-  //     });
-  //   } else {
-  //     print("NO any camera found");
-  //   }
-  // }
-
-  
-
-
-
-  
-
-  
-  
 
   Future<void> processImage(InputImage inputImage) async {
     if (!_canProcess) return;
@@ -98,7 +75,8 @@ class _HomeState extends State<Home> {
       final painter = FaceDetectorPainter(
           faces,
           inputImage.inputImageData!.size,
-          inputImage.inputImageData!.imageRotation);
+          inputImage.inputImageData!.imageRotation,
+          iMage!);
       _customPaint = CustomPaint(painter: painter);
     } else {
       String text = 'Faces found: ${faces.length}\n\n';
@@ -114,7 +92,6 @@ class _HomeState extends State<Home> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -123,16 +100,16 @@ class _HomeState extends State<Home> {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Container(
-            height: height,
-            child: CameraView(
-                        customPaint: _customPaint,
-                        text: _text,
-                        onImage: (inputImage) {
-                          processImage(inputImage);
-                        },
-                        initialDirection: CameraLensDirection.back,
-                      ),
-          ),
+        height: height,
+        child: CameraView(
+          customPaint: _customPaint,
+          text: _text,
+          onImage: (inputImage) {
+            processImage(inputImage);
+          },
+          initialDirection: CameraLensDirection.back,
+        ),
+      ),
     );
   }
 }
