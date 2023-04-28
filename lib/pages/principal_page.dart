@@ -249,25 +249,25 @@ class _Camera_pageState extends State<Camera_page> {
                     : Image.file(imageFile!, fit: BoxFit.contain),
               ),
             ),
-            Container(
-              height: 75,
-              color: pink2,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox.shrink(),
-                  ),
-                  IconButton(
-                    color: Colors.white,
-                    iconSize: 40,
-                    icon: Icon(Icons.send),
-                    onPressed: () {
-                      send_snap(context);
-                    },
-                  ),
-                ],
-              ),
-            )
+            // Container(
+            //   height: 75,
+            //   color: pink2,
+            //   child: Row(
+            //     children: [
+            //       Expanded(
+            //         child: SizedBox.shrink(),
+            //       ),
+            //       IconButton(
+            //         color: Colors.white,
+            //         iconSize: 40,
+            //         icon: Icon(Icons.send),
+            //         onPressed: () {
+            //           send_snap(context);
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // )
           ],
         ),
       ),

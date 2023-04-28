@@ -115,6 +115,28 @@ class _LoginscreenState extends State<Loginscreen> {
       ),
     );
 
+    final startbutton = Material(
+      elevation: 5,
+      borderRadius: BorderRadius.circular(20),
+      color: pink2,
+      child: MaterialButton(
+        height: 60,
+        padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        minWidth: MediaQuery.of(context).size.width/1.5,
+        onPressed: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => CAM()),
+          );
+        },
+        child: Text(
+          "Start",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
     Future<bool> _onWillPop() async {
       return false; //<-- SEE HERE
     }
@@ -143,43 +165,44 @@ class _LoginscreenState extends State<Loginscreen> {
                           ),
                         ),
                         SizedBox(
-                          height: 15,
+                          height: 50,
                         ),
-                        emailField,
-                        SizedBox(
-                          height: 20,
-                        ),
-                        passwordField,
-                        SizedBox(
-                          height: 35,
-                        ),
-                        loginbutton,
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Dont have an account?, '),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          registrationscreen()),
-                                );
-                              },
-                              child: Text(
-                                'SignUp',
-                                style: TextStyle(
-                                    color: pink2,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15),
-                              ),
-                            )
-                          ],
-                        )
+                        startbutton
+                        // emailField,
+                        // SizedBox(
+                        //   height: 20,
+                        // ),
+                        // passwordField,
+                        // SizedBox(
+                        //   height: 35,
+                        // ),
+                        // loginbutton,
+                        // SizedBox(
+                        //   height: 15,
+                        // ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.center,
+                        //   children: [
+                        //     Text('Dont have an account?, '),
+                        //     GestureDetector(
+                        //       onTap: () {
+                        //         Navigator.push(
+                        //           context,
+                        //           MaterialPageRoute(
+                        //               builder: (context) =>
+                        //                   registrationscreen()),
+                        //         );
+                        //       },
+                        //       child: Text(
+                        //         'SignUp',
+                        //         style: TextStyle(
+                        //             color: pink2,
+                        //             fontWeight: FontWeight.w600,
+                        //             fontSize: 15),
+                        //       ),
+                        //     )
+                        //   ],
+                        // )
                       ],
                     )),
               ),

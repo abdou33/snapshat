@@ -76,7 +76,7 @@ class _VideoEditorState extends State<VideoEditor> {
       await _controller.exportVideo(
         outDir: myImagePath,
         onProgress: (stats, value) => _exportingProgress.value = value,
-        onError: (e, s) => _showErrorSnackBar("Error on export video :("),
+        onError: (e, s) => _showErrorSnackBar("Error on export video :( + $e"),
         onCompleted: (file) {
           _isExporting.value = false;
           if (!mounted) return;
@@ -461,13 +461,13 @@ class _VideoEditorState extends State<VideoEditor> {
                   tooltip: 'Open crop screen',
                 ),
               ),
-              Expanded(
-                child: IconButton(
-                  onPressed: () async {},
-                  icon: const Icon(Icons.edit),
-                  tooltip: 'Open crop screen',
-                ),
-              ),
+              // Expanded(
+              //   child: IconButton(
+              //     onPressed: () async {},
+              //     icon: const Icon(Icons.edit),
+              //     tooltip: 'Open crop screen',
+              //   ),
+              // ),
               Expanded(
                 child: PopupMenuButton(
                   tooltip: 'Open export menu',
@@ -484,15 +484,15 @@ class _VideoEditorState extends State<VideoEditor> {
                   ],
                 ),
               ),
-              Expanded(
-                child: IconButton(
-                  onPressed: () {
-                    send_snap(context);
-                  },
-                  icon: const Icon(Icons.send),
-                  tooltip: 'Leave editor',
-                ),
-              ),
+              // Expanded(
+              //   child: IconButton(
+              //     onPressed: () {
+              //       send_snap(context);
+              //     },
+              //     icon: const Icon(Icons.send),
+              //     tooltip: 'Leave editor',
+              //   ),
+              // ),
             ],
           ),
         ),

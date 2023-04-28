@@ -4,7 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+//import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
@@ -18,66 +19,40 @@ import '../../themes/colors.dart';
 enum ScreenMode { liveFeed, gallery }
 
 class CameraView extends StatefulWidget {
-  CameraView(
-      {Key? key,
-      required this.customPaint,
-      this.text,
-      required this.onImage,
-      this.onScreenModeChanged,
-      this.initialDirection = CameraLensDirection.back})
-      : super(key: key);
+  CameraView({
+    Key? key,
+    required this.customPaint,
+    required this.onImage,
+    this.onScreenModeChanged,
+  }) : super(key: key);
 
   final CustomPaint? customPaint;
-  final String? text;
   final Function(InputImage inputImage) onImage;
   final Function(ScreenMode mode)? onScreenModeChanged;
-  final CameraLensDirection initialDirection;
 
   @override
   State<CameraView> createState() => _CameraViewState();
 }
 
 class _CameraViewState extends State<CameraView> {
+  CameraLensDirection initialDirection = CameraLensDirection.front;
   ScreenMode _mode = ScreenMode.liveFeed;
   static CameraController? _controller;
-  int _cameraIndex = -1;
+  int _cameraIndex = 0;
   double zoomLevel = 0.0, minZoomLevel = 0.0, maxZoomLevel = 0.0;
   final bool _allowPicker = true;
 
   XFile? image; //for caputred image
   XFile? video; //for recording video
   bool is_recording = false;
+  bool front_cam = false;
 
   ScreenshotController screenshotController = ScreenshotController();
 
   @override
   void initState() {
     super.initState();
-
-    if (cameras.any(
-      (element) =>
-          element.lensDirection == widget.initialDirection &&
-          element.sensorOrientation == 90,
-    )) {
-      _cameraIndex = cameras.indexOf(
-        cameras.firstWhere((element) =>
-            element.lensDirection == widget.initialDirection &&
-            element.sensorOrientation == 90),
-      );
-    } else {
-      for (var i = 0; i < cameras.length; i++) {
-        if (cameras[i].lensDirection == widget.initialDirection) {
-          _cameraIndex = i;
-          break;
-        }
-      }
-    }
-
-    if (_cameraIndex != -1) {
-      _startLiveFeed();
-    } else {
-      _mode = ScreenMode.gallery;
-    }
+    _startLiveFeed();
   }
 
   @override
@@ -89,6 +64,7 @@ class _CameraViewState extends State<CameraView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: _liveFeedBody(),
       floatingActionButton: Container(
         width: MediaQuery.of(context).size.width,
@@ -242,7 +218,9 @@ class _CameraViewState extends State<CameraView> {
                                     builder: (_) =>
                                         VideoPage(filePath: video!.path),
                                   );
-                                  Navigator.push(context, route);
+                                  Navigator.push(context, route).then((result) {
+                                    setState(() {});
+                                  });
                                 }
                               }
                             } catch (e) {
@@ -315,6 +293,7 @@ class _CameraViewState extends State<CameraView> {
                       backgroundColor: pink2,
                       heroTag: "btn4",
                       onPressed: () async {
+                        //switch_cam();
                         _switchLiveCamera();
                       },
                       child: Icon(Icons.flip_camera_android),
@@ -361,6 +340,8 @@ class _CameraViewState extends State<CameraView> {
                       itemBuilder: (_, int index) {
                         return GestureDetector(
                           onTap: () {
+                            iMage_name = face_filters[index];
+                            setState(() {});
                             load_image(face_filters[index]);
                           },
                           child: Card(
@@ -374,14 +355,13 @@ class _CameraViewState extends State<CameraView> {
                 )),
           ],
       icon: Icon(
+        weight: 1,
+        fill: 0.5,
         Icons.face_retouching_natural_sharp,
-        color: pink2,
+        color: Colors.white,
       ));
 
   load_image(String img) async {
-    setState(() {
-      iMage_name = img;
-    });
     if (img == "assets/face_filters/nothing.png") {
       isfaceon = false;
       var bytes = await rootBundle.load("assets/face_filters/transparent.png");
@@ -407,115 +387,123 @@ class _CameraViewState extends State<CameraView> {
     if (scale < 1) scale = 1 / scale;
 
     return Container(
-      color: Colors.black,
-      child: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          //the camera preview
-                Transform.scale(
-                  scale: scale,
-                  child: Center(
-                    child: _controller == null
-                        ? Center(
-                            child: CircularProgressIndicator(
-                              color: pink2,
-                            ),
-                          )
-                        : !_controller!.value.isInitialized && maxZoomLevel != 0
-                            ? Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.blue,
-                                ),
-                              )
-                            : CameraPreview(_controller!),
+        color: Colors.black,
+        child: Stack(
+          children: [
+            Screenshot(
+              controller: screenshotController,
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  //the camera preview
+                  Transform.scale(
+                    scale: scale,
+                    child: Center(
+                      child: _controller == null
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                color: pink2,
+                              ),
+                            )
+                          : !_controller!.value.isInitialized &&
+                                  maxZoomLevel != 0
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.blue,
+                                  ),
+                                )
+                              : CameraPreview(_controller!),
+                    ),
                   ),
-                ),
-                //the custom paint
-                if (widget.customPaint != null) widget.customPaint!,
-          // the UI
-          Container(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              child: maxZoomLevel != 0
-                  ? Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              child: is_flashon
-                                  ? IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          is_flashon = false;
-                                        });
-                                        _controller!
-                                            .setFlashMode(FlashMode.off);
-                                      },
-                                      icon: Icon(
-                                        Icons.flash_on,
-                                        color: Colors.white,
-                                        size: 35,
-                                      ))
-                                  : IconButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          is_flashon = true;
-                                        });
-                                        _controller!
-                                            .setFlashMode(FlashMode.always);
-                                      },
-                                      icon: Icon(
-                                        Icons.flash_off,
-                                        color: Colors.white,
-                                        size: 35,
-                                      )),
-                            ),
-                            Expanded(
-                              child: SizedBox.shrink(),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox.shrink(),
-                            ),
-                            Container(
-                              height:
-                                  MediaQuery.of(context).size.height * 60 / 100,
-                              child: RotatedBox(
-                                quarterTurns: 3,
-                                child: Slider(
-                                  activeColor: pink2,
-                                  value: zoom,
-                                  min: 1.0,
-                                  max: maxZoomLevel,
-                                  divisions: 30,
-                                  label: '$zoom',
-                                  onChanged: (double newValue) {
-                                    setState(() {
-                                      zoom = newValue;
-                                      change_zoom();
-                                    });
-                                  },
+                  //the custom paint
+                  if (widget.customPaint != null) widget.customPaint!,
+                ],
+              ),
+            ),
+            // the UI
+            Container(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: maxZoomLevel != 0
+                    ? Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                child: is_flashon
+                                    ? IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            is_flashon = false;
+                                          });
+                                          _controller!
+                                              .setFlashMode(FlashMode.off);
+                                        },
+                                        icon: Icon(
+                                          Icons.flash_on,
+                                          color: Colors.white,
+                                          size: 35,
+                                        ))
+                                    : IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            is_flashon = true;
+                                          });
+                                          _controller!
+                                              .setFlashMode(FlashMode.always);
+                                        },
+                                        icon: Icon(
+                                          Icons.flash_off,
+                                          color: Colors.white,
+                                          size: 35,
+                                        )),
+                              ),
+                              Expanded(
+                                child: SizedBox.shrink(),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox.shrink(),
+                              ),
+                              Container(
+                                height: MediaQuery.of(context).size.height *
+                                    60 /
+                                    100,
+                                child: RotatedBox(
+                                  quarterTurns: 3,
+                                  child: Slider(
+                                    activeColor: pink2,
+                                    value: zoom,
+                                    min: 1.0,
+                                    max: maxZoomLevel,
+                                    divisions: 30,
+                                    label: '$zoom',
+                                    onChanged: (double newValue) {
+                                      setState(() {
+                                        zoom = newValue;
+                                        change_zoom();
+                                      });
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                  : Center(
-                      child: CircularProgressIndicator(
-                      color: pink2,
-                    )),
-            ),
-          )
-        ],
-      ),
-    );
+                            ],
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: CircularProgressIndicator(
+                        color: pink2,
+                      )),
+              ),
+            )
+          ],
+        ));
   }
 
   take_pic(img) {
@@ -523,23 +511,26 @@ class _CameraViewState extends State<CameraView> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => Camera_page(File(img!.path))),
-    );
+    ).then((result) {
+      setState(() {});
+    });
   }
 
   take_ss() {
     screenshotController.capture().then((Uint8List? image) async {
+      final tempDir = await getTemporaryDirectory();
       DateTime ketF = new DateTime.now();
       String imgname = ketF.microsecondsSinceEpoch.toString();
-      final tempDir = await getTemporaryDirectory();
       File file = await File('${tempDir.path}/image_$imgname.png').create();
 
       file.writeAsBytesSync(image!.toList());
-      print(file);
 
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Camera_page(file)),
-      );
+      ).then((result) {
+        setState(() {});
+      });
     }).catchError((onError) {
       print(onError);
     });
@@ -549,21 +540,23 @@ class _CameraViewState extends State<CameraView> {
     XFile? img;
     if (is_image) {
       img = await ImagePicker().pickImage(source: ImageSource.gallery);
-      print("before============" + File(img!.path).toString());
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Camera_page(File(img!.path))),
-      );
+      ).then((result) {
+        setState(() {});
+      });
     } else if (!is_image) {
       img = await ImagePicker().pickVideo(source: ImageSource.gallery);
-      print("before============" + File(img!.path).toString());
       Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => VideoPage(
                   filePath: img!.path,
                 )),
-      );
+      ).then((result) {
+        setState(() {});
+      });
     }
   }
 
@@ -585,12 +578,11 @@ class _CameraViewState extends State<CameraView> {
     print(is_flashon);
   }
 
-
   Future _startLiveFeed() async {
     final camera = cameras[_cameraIndex];
     _controller = CameraController(
       camera,
-      ResolutionPreset.high,
+      ResolutionPreset.medium,
       enableAudio: false,
     );
     _controller?.initialize().then((_) async {
@@ -605,24 +597,24 @@ class _CameraViewState extends State<CameraView> {
         maxZoomLevel = value;
       });
       _controller?.startImageStream(_processCameraImage);
-      setState(() {});
     });
+    setState(() {});
+  }
+
+  _switchLiveCamera() async {
+    //_stopLiveFeed();
+    _controller = null;
+    //await _controller?.stopImageStream();
+
+    _cameraIndex = (_cameraIndex + 1) % 2;
+
+    _startLiveFeed();
   }
 
   Future _stopLiveFeed() async {
     await _controller?.stopImageStream();
     await _controller?.dispose();
     _controller = null;
-  }
-
-  Future _switchLiveCamera() async {
-    await _controller?.stopImageStream();
-    await _controller?.dispose();
-
-    _cameraIndex = (_cameraIndex + 1) % cameras.length;
-
-    await _startLiveFeed();
-
   }
 
   Future _processCameraImage(CameraImage image) async {

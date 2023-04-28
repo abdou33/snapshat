@@ -24,6 +24,7 @@ class _VideoPageState extends State<VideoPage> {
     _videoPlayerController = VideoPlayerController.file(File(widget.filePath));
     _videoPlayerController.play();
     _videoPlayerController.setLooping(true);
+    //_videoPlayerController.setVolume(0);
     _videoCtrlInitializationFuture = _videoPlayerController.initialize();
     super.initState();
   }
@@ -46,6 +47,7 @@ class _VideoPageState extends State<VideoPage> {
               color: Colors.white,
               icon: const Icon(Icons.check),
               onPressed: () {
+                _videoPlayerController.pause();
                 Navigator.push(
                   context,
                   MaterialPageRoute(

@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:helpers/helpers.dart';
 import 'dart:ui' as ui;
 
 import '../models/facemodels/camera_view.dart';
@@ -32,14 +33,13 @@ class _HomeState extends State<Home> {
 
   final FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
-      enableContours: true,
-      enableClassification: true,
-    ),
+        enableContours: true,
+        enableClassification: true,
+        performanceMode: FaceDetectorMode.fast),
   );
   bool _canProcess = true;
   bool _isBusy = false;
   CustomPaint? _customPaint;
-  String? _text;
   bool Cam_ready = false;
 
   @override
@@ -66,9 +66,7 @@ class _HomeState extends State<Home> {
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
-    setState(() {
-      _text = '';
-    });
+    setState(() {});
     final faces = await _faceDetector.processImage(inputImage);
     if (inputImage.inputImageData?.size != null &&
         inputImage.inputImageData?.imageRotation != null) {
@@ -79,11 +77,6 @@ class _HomeState extends State<Home> {
           iMage!);
       _customPaint = CustomPaint(painter: painter);
     } else {
-      String text = 'Faces found: ${faces.length}\n\n';
-      for (final face in faces) {
-        text += 'face: ${face.boundingBox}\n\n';
-      }
-      _text = text;
       _customPaint = null;
     }
     _isBusy = false;
@@ -103,11 +96,9 @@ class _HomeState extends State<Home> {
         height: height,
         child: CameraView(
           customPaint: _customPaint,
-          text: _text,
           onImage: (inputImage) {
             processImage(inputImage);
           },
-          initialDirection: CameraLensDirection.back,
         ),
       ),
     );
