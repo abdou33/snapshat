@@ -46,6 +46,9 @@ class _CameraViewState extends State<CameraView> {
   XFile? video; //for recording video
   bool is_recording = false;
   bool front_cam = false;
+  bool is_flashon = true;
+  bool is_paused = false;
+  double zoom = 1;
 
   ScreenshotController screenshotController = ScreenshotController();
 
@@ -139,7 +142,6 @@ class _CameraViewState extends State<CameraView> {
                                 await _controller!.stopImageStream();
                                 image = await _controller!
                                     .takePicture(); //capture image
-                                _startLiveFeed();
                                 setState(() {
                                   //update UI
                                 });
@@ -512,6 +514,7 @@ class _CameraViewState extends State<CameraView> {
       context,
       MaterialPageRoute(builder: (context) => Camera_page(File(img!.path))),
     ).then((result) {
+      _startLiveFeed();
       setState(() {});
     });
   }
@@ -529,6 +532,7 @@ class _CameraViewState extends State<CameraView> {
         context,
         MaterialPageRoute(builder: (context) => Camera_page(file)),
       ).then((result) {
+        _startLiveFeed();
         setState(() {});
       });
     }).catchError((onError) {
@@ -564,10 +568,6 @@ class _CameraViewState extends State<CameraView> {
     _controller!.setZoomLevel(zoom);
   }
 
-  bool is_flashon = true;
-  bool is_paused = false;
-  double zoom = 1;
-
   verify_flash() {
     if (is_flashon) {
       _controller!.setFlashMode(FlashMode.off);
@@ -583,12 +583,13 @@ class _CameraViewState extends State<CameraView> {
     _controller = CameraController(
       camera,
       ResolutionPreset.medium,
-      enableAudio: false,
+      enableAudio: true,
     );
     _controller?.initialize().then((_) async {
       if (!mounted) {
         return;
       }
+      verify_flash();
       _controller?.getMinZoomLevel().then((value) {
         zoomLevel = value;
         minZoomLevel = value;

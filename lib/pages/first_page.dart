@@ -70,6 +70,7 @@ class _HomeState extends State<Home> {
     final faces = await _faceDetector.processImage(inputImage);
     if (inputImage.inputImageData?.size != null &&
         inputImage.inputImageData?.imageRotation != null) {
+      print(faces);
       final painter = FaceDetectorPainter(
           faces,
           inputImage.inputImageData!.size,

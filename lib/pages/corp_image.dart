@@ -35,18 +35,15 @@ class _CorpImageState extends State<CorpImage> {
     setState(() {
       switch (index) {
         case 0:
-          done_corpping();
-          break;
-        case 1:
           editorKey.currentState!.flip();
           break;
-        case 2:
+        case 1:
           editorKey.currentState!.rotate(right: false);
           break;
-        case 3:
+        case 2:
           editorKey.currentState!.rotate(right: true);
           break;
-        case 4:
+        case 3:
           editorKey.currentState!.reset();
           break;
         default:
@@ -99,6 +96,15 @@ class _CorpImageState extends State<CorpImage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: pink2,
+        actions: [
+          IconButton(
+              color: Colors.white,
+              icon: const Icon(Icons.check),
+              onPressed: () {
+                done_corpping();
+              },
+            )
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
@@ -113,10 +119,6 @@ class _CorpImageState extends State<CorpImage> {
         selectedItemColor: pink2,
         onTap: _onItemTapped,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.crop),
-            label: 'crop',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.flip),
             label: 'flip',
