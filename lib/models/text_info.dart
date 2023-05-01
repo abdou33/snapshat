@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// text object
+
 class TextInfo {
   String text;
   double left;

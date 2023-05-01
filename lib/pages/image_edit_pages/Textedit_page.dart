@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 
-import '../widgets/edit_image_viewmodel.dart';
-import '../widgets/image_text.dart';
+import '../../widgets/edit_image_viewmodel.dart';
+import '../../widgets/image_text.dart';
+
+// add text to image page
 
 class EditImageScreen extends StatefulWidget {
   const EditImageScreen({Key? key, required this.selectedImage})

@@ -13,7 +13,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:snapshat/themes/colors.dart';
 
-import 'principal_page.dart';
+import 'principal_edit_image_page.dart';
+
+// crop image page
 
 class CorpImage extends StatefulWidget {
   File? image;
@@ -50,6 +52,8 @@ class _CorpImageState extends State<CorpImage> {
       }
     });
   }
+
+  // save the image after cropping and return it to the previous page
 
   done_corpping() async {
     ///crop rect base on raw image

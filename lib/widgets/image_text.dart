@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../models/text_info.dart';
 
 class ImageText extends StatelessWidget {

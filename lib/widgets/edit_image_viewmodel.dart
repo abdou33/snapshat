@@ -1,12 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
-
 import '../models/text_info.dart';
-import '../pages/Textedit_page.dart';
+import '../pages/image_edit_pages/Textedit_page.dart';
 import 'default_button.dart';
+
+// image edit view model
 
 abstract class EditImageViewModel extends State<EditImageScreen> {
   TextEditingController textEditingController = TextEditingController();

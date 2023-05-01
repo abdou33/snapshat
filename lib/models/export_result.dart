@@ -6,6 +6,8 @@ import 'package:fraction/fraction.dart';
 import 'package:path/path.dart' as path;
 import 'package:video_player/video_player.dart';
 
+// this file has the necessary functions to export the video and the cover and save it in gallery 
+
 Future<void> _getImageDimension(File file,
     {required Function(Size) onResult}) async {
   var decodedImage = await decodeImageFromList(file.readAsBytesSync());

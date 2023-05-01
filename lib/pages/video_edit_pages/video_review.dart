@@ -1,10 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-
-import '../themes/colors.dart';
+import '../../themes/colors.dart';
 import 'edit_video.dart';
+
+// video preview page
 
 class VideoPage extends StatefulWidget {
   final String filePath;
@@ -24,7 +24,6 @@ class _VideoPageState extends State<VideoPage> {
     _videoPlayerController = VideoPlayerController.file(File(widget.filePath));
     _videoPlayerController.play();
     _videoPlayerController.setLooping(true);
-    //_videoPlayerController.setVolume(0);
     _videoCtrlInitializationFuture = _videoPlayerController.initialize();
     super.initState();
   }

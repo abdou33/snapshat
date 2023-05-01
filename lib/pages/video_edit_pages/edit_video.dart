@@ -6,11 +6,13 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
 import 'package:video_editor/video_editor.dart';
 
-import '../models/export_result.dart';
-import '../themes/colors.dart';
-import 'crop.dart';
-import 'first_page.dart';
+import '../../models/export_result.dart';
+import '../../themes/colors.dart';
+import 'crop_video.dart';
+import '../first_page.dart';
 import 'video_acceleration.dart';
+
+// principal video editing page
 
 class VideoEditor extends StatefulWidget {
   const VideoEditor({super.key, required this.file});
@@ -60,7 +62,7 @@ class _VideoEditorState extends State<VideoEditor> {
           duration: const Duration(seconds: 1),
         ),
       );
-
+  // export video and save it to gallery
   void _exportVideo() async {
     var path = await ExternalPath.getExternalStoragePublicDirectory(
         ExternalPath.DIRECTORY_PICTURES);
@@ -84,7 +86,7 @@ class _VideoEditorState extends State<VideoEditor> {
       );
     }
   }
-
+  // export cover and save it to gallery
   void _exportCover() async {
     var path = await ExternalPath.getExternalStoragePublicDirectory(
         ExternalPath.DIRECTORY_PICTURES);
@@ -99,17 +101,6 @@ class _VideoEditorState extends State<VideoEditor> {
           context: context,
           builder: (_) => CoverResultPopup(cover: cover),
         );
-      },
-    );
-  }
-
-  gettmp_ved() async {
-    await _controller.exportVideo(
-      onProgress: (stats, value) => _exportingProgress.value = value,
-      onError: (e, s) => _showErrorSnackBar("Error on export video :("),
-      onCompleted: (file) {
-        _isExporting.value = false;
-        if (!mounted) return;
       },
     );
   }

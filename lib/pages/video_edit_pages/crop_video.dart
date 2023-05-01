@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:fraction/fraction.dart';
 import 'package:video_editor/video_editor.dart';
 
+// crop video page
+
 class CropScreen extends StatelessWidget {
   const CropScreen({super.key, required this.controller});
 

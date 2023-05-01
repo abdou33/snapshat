@@ -1,16 +1,15 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:snapshat/themes/colors.dart';
+import 'pages/start_page.dart';
 
-import 'pages/principal_page.dart';
-import 'pages/first_page.dart';
-import 'pages/login_page.dart';
+// first page to be excuted
 
-List<CameraDescription> cameras = [];
+List<CameraDescription> cameras = []; // load available cameras
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); //Add this
-  cameras = await availableCameras();
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized(); // prepare flutter widgets
+  cameras = await availableCameras(); // prepare cameras
+  runApp(const MyApp());  // run the app
 }
 
 class MyApp extends StatelessWidget {
@@ -26,7 +25,7 @@ class MyApp extends StatelessWidget {
           primary: pink2,
         ),
       ),
-      home: Loginscreen(),
+      home: Startscreen(),  // redirect to start screen
     );
   }
 }

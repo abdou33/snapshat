@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:video_player/video_player.dart';
+import '../../themes/colors.dart';
 
-import '../themes/colors.dart';
+// edit video speed page
 
 class VedAccelerator extends StatefulWidget {
   File? ved;

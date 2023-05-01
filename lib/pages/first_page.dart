@@ -2,11 +2,12 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:helpers/helpers.dart';
 import 'dart:ui' as ui;
 
-import '../models/facemodels/camera_view.dart';
 import '../models/facemodels/face_detector_painter.dart';
+import '../widgets/camera_view.dart';
+
+// first page (choose or take an image or a video)
 
 class CAM extends StatelessWidget {
   @override
@@ -40,12 +41,10 @@ class _HomeState extends State<Home> {
   bool _canProcess = true;
   bool _isBusy = false;
   CustomPaint? _customPaint;
-  bool Cam_ready = false;
 
   @override
   void initState() {
-    //loadCamera();
-    load_image();
+    load_image();   // load image at first
     super.initState();
   }
 

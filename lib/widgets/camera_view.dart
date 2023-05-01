@@ -12,11 +12,13 @@ import 'package:screenshot/screenshot.dart';
 
 import '../../main.dart';
 import '../../pages/first_page.dart';
-import '../../pages/principal_page.dart';
-import '../../pages/video_review.dart';
+import '../pages/image_edit_pages/principal_edit_image_page.dart';
+import '../pages/video_edit_pages/video_review.dart';
 import '../../themes/colors.dart';
 
 enum ScreenMode { liveFeed, gallery }
+
+// camera widget page
 
 class CameraView extends StatefulWidget {
   CameraView({

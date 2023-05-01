@@ -9,8 +9,6 @@ import 'package:photofilters/photofilters.dart';
 import 'package:image/image.dart' as imageLib;
 import 'package:share/share.dart';
 import 'package:snapshat/themes/colors.dart';
-import 'dart:math' as math;
-
 import 'Textedit_page.dart';
 import 'corp_image.dart';
 
@@ -32,33 +30,16 @@ class _Camera_pageState extends State<Camera_page> {
   List<Filter> filters2 = presetFiltersList;
   List<Filter>? filters;
 
-  List<String> ppl_names = [
-    "Reda",
-    "Omar",
-    "manel",
-    "heba",
-    "meriem",
-    "abdellah"
-  ];
-  List<String> ppl_images = [
-    "assets/ppl/1.jpeg", //
-    "assets/ppl/2.jpeg",
-    "assets/ppl/3.jpeg",
-    "assets/ppl/4.jpeg",
-    "assets/ppl/5.jpeg",
-    "assets/ppl/6.jpeg"
-  ];
-
   @override
   void initState() {
-    // filters1.take(7);
-    // filters2.take(7);
-    filters = List.from(filters2.take(10))..addAll(filters1.take(10));
+    filters = List.from(filters2.take(10))..addAll(filters1.take(10));      // initializing filtres list
     Future.delayed(Duration.zero, () async {
       getImage();
     });
     super.initState();
   }
+
+  // get image and return filtered image if exists
 
   Future getImage() async {
     fileName = basename(imageFile!.path);
@@ -89,6 +70,7 @@ class _Camera_pageState extends State<Camera_page> {
     }
   }
 
+  // save image to gallery
   saveimagetogallery(File img) async {
     var path = await ExternalPath.getExternalStoragePublicDirectory(ExternalPath.DIRECTORY_PICTURES);
 
@@ -107,71 +89,14 @@ class _Camera_pageState extends State<Camera_page> {
     }
   }
 
+  //share image
   shareimage(File img) async {
     final directory = await getExternalStorageDirectory();
     final myImagePath = '${directory!.path}/BIsnap';
     Share.shareFiles(['${img.path}/'], text: "${myImagePath}");
   }
-
-  int number = 0;
-  send_snap(BuildContext context) {
-    return showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return ListView.builder(
-          itemCount: ppl_names.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10), // radius of 10
-                    color: Color.fromARGB(
-                        255, 244, 244, 244), // green as background color
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.8),
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset: Offset(0, 0), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage: AssetImage(ppl_images[index]),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          ppl_names[index],
-                        ),
-                        Expanded(
-                          child: SizedBox.shrink(),
-                        ),
-                        Radio(
-                            value: index,
-                            groupValue: number,
-                            onChanged: (int? value) {
-                              setState(() {
-                                number = value!;
-                                print(number); //selected value
-                              });
-                            })
-                      ],
-                    ),
-                  )),
-            );
-          },
-        );
-      },
-    );
-  }
-
+  
+  // build widgets (the interface)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -249,25 +174,6 @@ class _Camera_pageState extends State<Camera_page> {
                     : Image.file(imageFile!, fit: BoxFit.contain),
               ),
             ),
-            // Container(
-            //   height: 75,
-            //   color: pink2,
-            //   child: Row(
-            //     children: [
-            //       Expanded(
-            //         child: SizedBox.shrink(),
-            //       ),
-            //       IconButton(
-            //         color: Colors.white,
-            //         iconSize: 40,
-            //         icon: Icon(Icons.send),
-            //         onPressed: () {
-            //           send_snap(context);
-            //         },
-            //       ),
-            //     ],
-            //   ),
-            // )
           ],
         ),
       ),

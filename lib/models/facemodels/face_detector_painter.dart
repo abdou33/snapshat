@@ -1,9 +1,6 @@
-import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:snapshat/pages/first_page.dart';
 
 import 'cords_translator.dart';
 
@@ -16,12 +13,10 @@ class FaceDetectorPainter extends CustomPainter {
   final InputImageRotation rotation;
   final ui.Image image;
 
+  // get the choosen image filter and print it at the face position
+
   @override
   Future<void> paint(Canvas canvas, Size size) async {
-    final Paint paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..color = Colors.red;
 
     for (final Face face in faces) {
       paintImage(
