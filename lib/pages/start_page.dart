@@ -65,7 +65,7 @@ class _StartscreenState extends State<Startscreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         SizedBox(
-                          height: 250,
+                          height: 320,
                           child: Image.asset(
                             "assets/logo.png",
                             fit: BoxFit.contain,
