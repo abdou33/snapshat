@@ -62,6 +62,7 @@ class _VideoEditorState extends State<VideoEditor> {
           duration: const Duration(seconds: 1),
         ),
       );
+
   // export video and save it to gallery
   void _exportVideo() async {
     var path = await ExternalPath.getExternalStoragePublicDirectory(
@@ -86,6 +87,7 @@ class _VideoEditorState extends State<VideoEditor> {
       );
     }
   }
+
   // export cover and save it to gallery
   void _exportCover() async {
     var path = await ExternalPath.getExternalStoragePublicDirectory(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-// text object
+// text on the image class
 
 class TextInfo {
   String text;

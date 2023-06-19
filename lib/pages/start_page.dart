@@ -14,9 +14,6 @@ class Startscreen extends StatefulWidget {
 class _StartscreenState extends State<Startscreen> {
   // form key
   final formkey = GlobalKey<FormState>();
-  //editing controller
-  final TextEditingController usernameController = new TextEditingController();
-  final TextEditingController passwordController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {

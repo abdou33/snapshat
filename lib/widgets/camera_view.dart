@@ -13,6 +13,7 @@ import 'package:screenshot/screenshot.dart';
 import '../../main.dart';
 import '../../pages/first_page.dart';
 import '../pages/image_edit_pages/principal_edit_image_page.dart';
+import '../pages/video_edit_pages/imgs_to_vid.dart';
 import '../pages/video_edit_pages/video_review.dart';
 import '../../themes/colors.dart';
 
@@ -51,6 +52,8 @@ class _CameraViewState extends State<CameraView> {
   bool is_flashon = true;
   bool is_paused = false;
   double zoom = 1;
+
+  final ImagePicker picker = ImagePicker();
 
   ScreenshotController screenshotController = ScreenshotController();
 
@@ -92,6 +95,27 @@ class _CameraViewState extends State<CameraView> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    RawMaterialButton(
+                                        shape: CircleBorder(),
+                                        elevation: 2.0,
+                                        fillColor: pink2,
+                                        padding: EdgeInsets.all(15.0),
+                                        child: Icon(
+                                          Icons.video_library_sharp,
+                                          color: Colors.white,
+                                          size: 40,
+                                        ),
+                                        onPressed: () async {
+                                          // picl sequence of images
+                                          final List<XFile> images =
+                                              await picker.pickMultiImage();
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    Imgssequencetoved(images: images,)),
+                                          );
+                                        }),
                                     RawMaterialButton(
                                         shape: CircleBorder(),
                                         elevation: 2.0,
@@ -365,6 +389,7 @@ class _CameraViewState extends State<CameraView> {
         color: Colors.white,
       ));
 
+
   load_image(String img) async {
     if (img == "assets/face_filters/nothing.png") {
       isfaceon = false;
@@ -510,6 +535,7 @@ class _CameraViewState extends State<CameraView> {
         ));
   }
 
+// take an image
   take_pic(img) {
     print(File(img!.path).toString());
     Navigator.push(
@@ -521,6 +547,7 @@ class _CameraViewState extends State<CameraView> {
     });
   }
 
+// take an image with the face filter on
   take_ss() {
     screenshotController.capture().then((Uint8List? image) async {
       final tempDir = await getTemporaryDirectory();
@@ -542,6 +569,7 @@ class _CameraViewState extends State<CameraView> {
     });
   }
 
+// pick an image from gallery
   pickimage(bool is_image) async {
     XFile? img;
     if (is_image) {
@@ -566,10 +594,12 @@ class _CameraViewState extends State<CameraView> {
     }
   }
 
+// increase or decrease zoom
   change_zoom() {
     _controller!.setZoomLevel(zoom);
   }
 
+// set flash light
   verify_flash() {
     if (is_flashon) {
       _controller!.setFlashMode(FlashMode.off);
@@ -604,6 +634,8 @@ class _CameraViewState extends State<CameraView> {
     setState(() {});
   }
 
+
+// switch camera
   _switchLiveCamera() async {
     //_stopLiveFeed();
     _controller = null;

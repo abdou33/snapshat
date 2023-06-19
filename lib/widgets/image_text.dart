@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/text_info.dart';
 
+// Image text class
 class ImageText extends StatelessWidget {
   final TextInfo textInfo;
   const ImageText({

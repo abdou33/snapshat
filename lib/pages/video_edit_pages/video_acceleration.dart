@@ -20,7 +20,7 @@ class _VedAcceleratorState extends State<VedAccelerator> {
 
   @override
   initState() {
-    print("file22==: ${widget.ved}");
+    // print("file22==: ${widget.ved}");
     if (widget.ved != null) {
       _controller = VideoPlayerController.file(widget.ved!)
         ..initialize().then((_) {

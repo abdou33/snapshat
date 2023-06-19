@@ -20,6 +20,8 @@ class EditImageScreen extends StatefulWidget {
 }
 
 class _EditImageScreenState extends EditImageViewModel {
+
+  // save image to gallery after adding text to image
   saveToGallery(BuildContext context) {
       screenshotController.capture().then((Uint8List? image) async {
         DateTime ketF = new DateTime.now();

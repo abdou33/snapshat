@@ -9,8 +9,11 @@ import 'package:photofilters/photofilters.dart';
 import 'package:image/image.dart' as imageLib;
 import 'package:share/share.dart';
 import 'package:snapshat/themes/colors.dart';
+import '../../models/custom filters/binaryimagefilter.dart';
+import '../../models/custom filters/greyfilter.dart';
 import 'Textedit_page.dart';
 import 'corp_image.dart';
+import 'image_overlay.dart';
 
 class Camera_page extends StatefulWidget {
   File? image;
@@ -24,10 +27,13 @@ class _Camera_pageState extends State<Camera_page> {
   _Camera_pageState(this.imageFile);
   late String fileName;
 
-  //presetFiltersList
-  //presetConvolutionFiltersList
+  // our filters Lists
   List<Filter> filters1 = presetConvolutionFiltersList;
-  List<Filter> filters2 = presetFiltersList;
+  List<Filter> filters2 = [
+    BinaryFilter(threshold: 128, name: 'Binary'), // binary filter
+    GrayscaleFilter(name: "Grayscale"), // gray filter
+    ...presetFiltersList, // Other filters from the package
+  ];
   List<Filter>? filters;
 
   @override
@@ -103,6 +109,25 @@ class _Camera_pageState extends State<Camera_page> {
       appBar: AppBar(
         backgroundColor: pink2,
         actions: [
+          IconButton(
+            icon: Icon(Icons.image_rounded),
+            onPressed: () {
+              Navigator.of(context)
+                  .push(
+                MaterialPageRoute(
+                  builder: (context) => ImageOverlayEdit(
+                    selectedImage: imageFile!.path,
+                  ),
+                ),
+              )
+                  .then((result) {
+                setState(() {
+                  print("result: $result");
+                  imageFile = result;
+                });
+              });
+            },
+          ),
           IconButton(
             icon: Icon(Icons.text_fields),
             onPressed: () {

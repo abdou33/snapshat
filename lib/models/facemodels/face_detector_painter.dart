@@ -13,7 +13,7 @@ class FaceDetectorPainter extends CustomPainter {
   final InputImageRotation rotation;
   final ui.Image image;
 
-  // get the choosen image filter and print it at the face position
+  // get the choosen image filter and print it in the face position on the screen
 
   @override
   Future<void> paint(Canvas canvas, Size size) async {

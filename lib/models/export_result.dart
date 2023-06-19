@@ -8,6 +8,7 @@ import 'package:video_player/video_player.dart';
 
 // this file has the necessary functions to export the video and the cover and save it in gallery 
 
+// get the image dimensions (height/width)
 Future<void> _getImageDimension(File file,
     {required Function(Size) onResult}) async {
   var decodedImage = await decodeImageFromList(file.readAsBytesSync());
@@ -17,6 +18,7 @@ Future<void> _getImageDimension(File file,
 String _fileMBSize(File file) =>
     ' ${(file.lengthSync() / (1024 * 1024)).toStringAsFixed(1)} MB';
 
+// show video result popup
 class VideoResultPopup extends StatefulWidget {
   const VideoResultPopup({super.key, required this.video});
 
@@ -102,7 +104,7 @@ class _VideoResultPopupState extends State<VideoResultPopup> {
     );
   }
 }
-
+// show cover result popup window widget 
 class CoverResultPopup extends StatefulWidget {
   const CoverResultPopup({super.key, required this.cover});
 
@@ -156,6 +158,7 @@ class _CoverResultPopupState extends State<CoverResultPopup> {
   }
 }
 
+//show file description info windows widget
 class FileDescription extends StatelessWidget {
   const FileDescription({super.key, required this.description});
 

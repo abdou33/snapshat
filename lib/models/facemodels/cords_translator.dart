@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
-// calculate the position of the face and return x and y position
+// calculate the position of the face and return x and y position in the screen
 
-// return x position
+// calculate and return x position
 double translateX(
     double x, InputImageRotation rotation, Size size, Size absoluteImageSize) {
   switch (rotation) {
@@ -19,7 +19,7 @@ double translateX(
   }
 }
 
-// return y position
+// calculate and return y position
 double translateY(
     double y, InputImageRotation rotation, Size size, Size absoluteImageSize) {
   switch (rotation) {

@@ -48,6 +48,7 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
+// load the image
   load_image() async {
     var bytes = await rootBundle.load("assets/face_filters/transparent.png");
     iMage = await decodeImageFromList(bytes.buffer.asUint8List());
@@ -61,6 +62,7 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+// process the current frame to detect faces
   Future<void> processImage(InputImage inputImage) async {
     if (!_canProcess) return;
     if (_isBusy) return;
@@ -69,7 +71,7 @@ class _HomeState extends State<Home> {
     final faces = await _faceDetector.processImage(inputImage);
     if (inputImage.inputImageData?.size != null &&
         inputImage.inputImageData?.imageRotation != null) {
-      print(faces);
+      //print(faces);
       final painter = FaceDetectorPainter(
           faces,
           inputImage.inputImageData!.size,

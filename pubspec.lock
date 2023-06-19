@@ -557,8 +557,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: be63c1c34ec4ed91c1f0d38e0b96d744360964d8
-      url: "https://github.com/abdou33/photofilters.git"
+      resolved-ref: "47594ac83ad45fea24e25e2abce2d1fd617122d7"
+      url: "https://github.com/Biba2001/photofilters.git"
     source: git
     version: "3.0.1"
   platform:

@@ -133,6 +133,8 @@ class CropScreen extends StatelessWidget {
     );
   }
 
+
+// crop video button widget
   Widget _buildCropButton(BuildContext context, Fraction? f) {
     if (controller.preferredCropAspectRatio != null &&
         controller.preferredCropAspectRatio! > 1) f = f?.inverse();

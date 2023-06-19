@@ -4,20 +4,7 @@ description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 2.0.0+1
 
 environment:
   sdk: '>=2.18.4 <3.0.0'
@@ -34,29 +21,28 @@ dependencies:
 
   
   # used packages
-  photofilters:
+  photofilters: # photo filters package
     git:
-      url: https://github.com/abdou33/photofilters.git
-  image: ^3.0.2
-  image_picker: ^0.8.7+3
-  camera: ^0.10.4
-  share: ^2.0.4
-  path_provider: ^2.0.9
-  permission_handler: ^10.2.0
-  extended_image: ^7.0.2
-  image_editor: ^1.3.0
-  screenshot: ^1.2.3
-  flutter_launcher_icons: ^0.11.0
-  video_editor: ^2.4.0
-  video_player: ^2.6.1
-  external_path: ^1.0.3
-  fraction: ^4.1.4
-  helpers: ^1.1.4
-  google_mlkit_face_detection: ^0.6.0
+      url: https://github.com/Biba2001/photofilters.git
 
+  image: ^3.0.2     # neccessary package to use images 
+  image_picker: ^0.8.7+3  # to pick images and videos from gallery
+  camera: ^0.10.4 # to use device camera
+  share: ^2.0.4 # to share images and videos
+  path_provider: ^2.0.9 # to get paths of files(images and videos)
+  permission_handler: ^10.2.0 # to ask for device permissions (camera and save in files)
+  extended_image: ^7.0.2   #to crops images
+  image_editor: ^1.3.0  # to edit images
+  screenshot: ^1.2.3  # to screenshot a part of the screen
+  flutter_launcher_icons: ^0.11.0 # to change application launcher icon
+  video_editor: ^2.4.0  # for videos editing
+  video_player: ^2.6.1  # to play videos 
+  external_path: ^1.0.3 # to reate a new folder and save images and videos there
+  fraction: ^4.1.4  # neccessary for videos editing
+  helpers: ^1.1.4 # neccessary for videos editing
+  google_mlkit_face_detection: ^0.6.0 # to detect faces
+  # ffmpeg_kit_flutter: ^4.5.0-LTS  # to manipulate videos
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
 
@@ -68,7 +54,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/20230523_112502.png"
+  image_path: "assets/20230523_112502.png"  # fnek image
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
